@@ -41,15 +41,41 @@ const Dashboard = () => {
     });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("authHeaders");
-    setSnackbar({
-      open: true,
-      message: "Logged out successfully!",
-      severity: "info"
-    });
-    setTimeout(() => navigate("/login"), 1000);
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/auth/sign_out", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...JSON.parse(localStorage.getItem("authHeaders")), // Sending saved auth headers
+        },
+      });
+  
+      if (response.ok) {
+        localStorage.removeItem("authHeaders"); // Clear authentication headers
+        setSnackbar({
+          open: true,
+          message: "Logged out successfully!",
+          severity: "info",
+        });
+        setTimeout(() => navigate("/login"), 1000);
+      } else {
+        setSnackbar({
+          open: true,
+          message: "Logout failed. Please try again.",
+          severity: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      setSnackbar({
+        open: true,
+        message: "An error occurred while logging out.",
+        severity: "error",
+      });
+    }
   };
+  
 
   return (
     <Container maxWidth="md">
