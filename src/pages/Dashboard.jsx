@@ -51,10 +51,6 @@ const Dashboard = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const generateReferralLink = (email) => {
-    return `${window.location.origin}/signup?ref=${btoa(email)}`; // Encode email for referral tracking
-  };
-
   const handleRefer = async () => {
     try {
       const authHeaders = JSON.parse(localStorage.getItem("authHeaders")); // Retrieve authentication headers
@@ -78,7 +74,10 @@ const Dashboard = () => {
   
       if (response.ok) {
         const data = await response.json();
-        setReferralLink(`${window.location.origin}/signup?referral_code=${data.referral_code}`); // Updated key
+        const newReferralLink = `${window.location.origin}/signup?referral_code=${data.referral_code}`; // Updated key
+        setReferralLink(newReferralLink); // Update the referral link state
+       
+        sentMail(email, newReferralLink);
   
         setSnackbar({
           open: true,
@@ -101,6 +100,52 @@ const Dashboard = () => {
       });
     }
   };
+
+  const sentMail = async (email, referralLink) => {
+    try {
+      const authHeaders = JSON.parse(localStorage.getItem("authHeaders")); // Retrieve authentication headers
+  
+      if (!authHeaders) {
+        setSnackbar({
+          open: true,
+          message: "You need to log in first.",
+          severity: "error",
+        });
+        return;
+      }
+  
+      const response = await fetch("http://localhost:3000/send_referral_email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders, // Include authentication headers
+        },
+        body: JSON.stringify({ email, referral_link: referralLink }),
+      });
+  
+      if (response.ok) {
+        setSnackbar({
+          open: true,
+          message: "Referral email sent successfully!",
+          severity: "success",
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          message: "Failed to send referral email. Please try again.",
+          severity: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error sending referral email:", error);
+      setSnackbar({
+        open: true,
+        message: "An error occurred while sending the referral email.",
+        severity: "error",
+      });
+    }
+  };
+  
   
 
   const copyToClipboard = () => {
