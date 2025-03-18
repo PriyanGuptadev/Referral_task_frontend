@@ -63,6 +63,17 @@ const Dashboard = () => {
         });
         return;
       }
+
+      const currentUserEmail = authHeaders.uid; // Get user email from auth headers
+
+      if (email.trim().toLowerCase() === currentUserEmail.trim().toLowerCase()) {
+        setSnackbar({
+          open: true,
+          message: "You cannot refer yourself!",
+          severity: "warning",
+        });
+        return;
+      }
   
       const response = await fetch("http://localhost:3000/referrals/generate_code", {
         method: "GET",
@@ -146,8 +157,6 @@ const Dashboard = () => {
     }
   };
   
-  
-
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralLink);
     setSnackbar({

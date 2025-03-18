@@ -39,12 +39,12 @@ const Signup = () => {
       });
       
       const data = await response.json();
-
+       
       if (response.ok) {
         setSnackbar({ open: true, message: "Signup successful! Redirecting...", severity: "success" });
         setTimeout(() => navigate("/login"), 1000);
       } else {
-        setSnackbar({ open: true, message: data.error || "Signup failed!", severity: "error" });
+        setSnackbar({ open: true, message: data.errors || "Signup failed!", severity: "error" });
       }
     } catch (error) {
       setSnackbar({ open: true, message: "Network error! Please try again.", severity: "error" });
