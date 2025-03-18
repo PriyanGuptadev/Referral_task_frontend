@@ -1,12 +1,55 @@
-# React + Vite
+# Rewards Referral System - React Project  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Table of Contents  
+- [Overview](#overview)  
+- [Features](#features)  
+- [Installation](#installation)  
+- [Environment Variables](#environment-variables)  
+- [Usage](#usage)  
+- [Available Scripts](#available-scripts)  
+- [Dependencies](#dependencies)    
+- [License](#license)  
 
-Currently, two official plugins are available:
+## Overview  
+This is a React-based rewards referral system where users can invite their friends to sign up. When a user logs in, they can enter their friend's email, and an automated referral email is sent. If the invited friend signs up, the referrer earns rewards.  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features  
+✅ Sign up/Login functionality  
+✅ Automatic welcome email after signup  
+✅ Referral system to invite friends  
+✅ Automated email sent with a referral link  
+✅ Earn rewards for successful referrals  
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Clone the repository:  
+```sh  
+ git clone https://github.com/PriyanGuptadev/Referral_task_frontend.git  
+ cd your-repo
+```
+
+## Installation  
+To install dependencies, run:  
+
+```sh  
+npm install  
+```  
+
+## Environment Variables  
+Create a `.env` file in the root of your project and add the following:  
+
+```sh
+VITE_REACT_APP_BACKEND_BASE_URL=http://localhost:3000
+```  
+
+## Usage  
+To start the development server, run:  
+
+```sh  
+npm run dev  
+```  
+
+## Dependencies  
+- `react` - Frontend framework  
+- `react-router-dom` - Routing  
+- `material-ui` - UI components  
+
