@@ -21,6 +21,9 @@ const Signup = () => {
       return;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get("referral_code"); 
+
     try {
       const response = await fetch("http://localhost:3000/auth", {
         method: "POST",
@@ -29,7 +32,9 @@ const Signup = () => {
         },
         body: JSON.stringify({
           email,
-          password
+          password,
+          password_confirmation: password,
+          referral_code: referralCode
         })
       });
       

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Container, Typography, TextField, Button, 
   Box, Paper, Snackbar, IconButton, Grid, Card, CardContent, Alert
@@ -10,7 +10,42 @@ const Dashboard = () => {
   const [email, setEmail] = useState("");
   const [referralLink, setReferralLink] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const [statistics, setStatistics] = useState({ rewards_point: 0, referral_count: 0 }); // State for referral stats
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    fetchReferralStatistics();
+  }, []);
+
+  const fetchReferralStatistics = async () => {
+    try {
+      const authHeaders = JSON.parse(localStorage.getItem("authHeaders")); // Retrieve auth headers
+  
+      if (!authHeaders) {
+        setSnackbar({ open: true, message: "You need to log in first.", severity: "error" });
+        return;
+      }
+
+      const response = await fetch("http://localhost:3000/referrals/statistics", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setStatistics(data); // Update state with API response
+      } else {
+        setSnackbar({ open: true, message: "Failed to fetch statistics.", severity: "error" });
+      }
+    } catch (error) {
+      console.error("Error fetching referral statistics:", error);
+      setSnackbar({ open: true, message: "Error fetching statistics.", severity: "error" });
+    }
+  };
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -20,17 +55,53 @@ const Dashboard = () => {
     return `${window.location.origin}/signup?ref=${btoa(email)}`; // Encode email for referral tracking
   };
 
-  const handleRefer = () => {
-    if (email) {
-      const link = generateReferralLink(email);
-      setReferralLink(link);
+  const handleRefer = async () => {
+    try {
+      const authHeaders = JSON.parse(localStorage.getItem("authHeaders")); // Retrieve authentication headers
+  
+      if (!authHeaders) {
+        setSnackbar({
+          open: true,
+          message: "You need to log in first.",
+          severity: "error",
+        });
+        return;
+      }
+  
+      const response = await fetch("http://localhost:3000/referrals/generate_code", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders, // Include authentication headers
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setReferralLink(`${window.location.origin}/signup?referral_code=${data.referral_code}`); // Updated key
+  
+        setSnackbar({
+          open: true,
+          message: "Referral code generated successfully!",
+          severity: "success",
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          message: "Failed to generate referral code. Please try again.",
+          severity: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating referral code:", error);
       setSnackbar({
         open: true,
-        message: "Referral link generated successfully!",
-        severity: "success"
+        message: "An error occurred while generating the referral code.",
+        severity: "error",
       });
     }
   };
+  
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralLink);
@@ -134,7 +205,7 @@ const Dashboard = () => {
               <Card sx={{ p: 2, textAlign: "center", backgroundColor: "#f0f8ff" }}>
                 <CardContent>
                   <People color="primary" sx={{ fontSize: 40 }} />
-                  <Typography variant="h6">12</Typography>
+                  <Typography variant="h6">{statistics.referral_count}</Typography>
                   <Typography variant="body2">Friends Referred</Typography>
                 </CardContent>
               </Card>
@@ -143,7 +214,7 @@ const Dashboard = () => {
               <Card sx={{ p: 2, textAlign: "center", backgroundColor: "#fff3e0" }}>
                 <CardContent>
                   <MonetizationOn color="secondary" sx={{ fontSize: 40 }} />
-                  <Typography variant="h6">$50</Typography>
+                  <Typography variant="h6">${statistics.rewards_point}</Typography>
                   <Typography variant="body2">Earned Rewards</Typography>
                 </CardContent>
               </Card>
