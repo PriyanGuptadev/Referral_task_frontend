@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [statistics, setStatistics] = useState({ rewards_point: 0, referral_count: 0 }); // State for referral stats
   const navigate = useNavigate();
 
+const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_BASE_URL
 
   useEffect(() => {
     fetchReferralStatistics();
@@ -27,7 +28,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:3000/referrals/statistics", {
+      const response = await fetch(`${backendUrl}/referrals/statistics`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +76,7 @@ const Dashboard = () => {
         return;
       }
   
-      const response = await fetch("http://localhost:3000/referrals/generate_code", {
+      const response = await fetch(`${backendUrl}/referrals/generate_code`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +126,7 @@ const Dashboard = () => {
         return;
       }
   
-      const response = await fetch("http://localhost:3000/send_referral_email", {
+      const response = await fetch(`${backendUrl}/send_referral_email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -166,41 +167,17 @@ const Dashboard = () => {
     });
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/auth/sign_out", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          ...JSON.parse(localStorage.getItem("authHeaders")), // Sending saved auth headers
-        },
-      });
+  const handleLogout = () => {
+    localStorage.removeItem("authHeaders"); // Clear authentication headers
   
-      if (response.ok) {
-        localStorage.removeItem("authHeaders"); // Clear authentication headers
-        setSnackbar({
-          open: true,
-          message: "Logged out successfully!",
-          severity: "info",
-        });
-        setTimeout(() => navigate("/login"), 1000);
-      } else {
-        setSnackbar({
-          open: true,
-          message: "Logout failed. Please try again.",
-          severity: "error",
-        });
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      setSnackbar({
-        open: true,
-        message: "An error occurred while logging out.",
-        severity: "error",
-      });
-    }
-  };
+    setSnackbar({
+      open: true,
+      message: "Logged out successfully!",
+      severity: "info",
+    });
   
+    setTimeout(() => navigate("/login"), 1000);
+  };  
 
   return (
     <Container maxWidth="md">

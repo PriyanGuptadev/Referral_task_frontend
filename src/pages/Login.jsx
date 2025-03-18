@@ -26,7 +26,7 @@ const Login = () => {
     }
   
     try {
-      const response = await fetch("http://localhost:3000/auth/sign_in", {
+      const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASE_URL}/auth/sign_in`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
