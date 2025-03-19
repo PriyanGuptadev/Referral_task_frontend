@@ -25,7 +25,7 @@ const Signup = () => {
     const referralCode = urlParams.get("referral_code"); 
 
     try {
-      const response = await fetch(`http://localhost:3000/auth`, {
+      const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASE_URL}/auth`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
