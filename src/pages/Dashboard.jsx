@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { 
   Container, Typography, TextField, Button, 
-  Box, Paper, Snackbar, IconButton, Grid, Card, CardContent, Alert
+  Box, Paper, Snackbar, IconButton, Grid, Card, CardContent, Alert, Modal, List, ListItem, ListItemText, Avatar, Chip
 } from "@mui/material";
-import { ContentCopy, Send, Logout, People, MonetizationOn } from "@mui/icons-material";
+import { ContentCopy, Send, Logout, People, MonetizationOn,  List as ListIcon, Person, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [email, setEmail] = useState("");
   const [referralLink, setReferralLink] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
-  const [statistics, setStatistics] = useState({ rewards_point: 0, referral_count: 0 }); // State for referral stats
+  const [statistics, setStatistics] = useState({ rewards_point: 0, referral_count: 0, referred_user_emails: [] }); // Added referred_user_emails
+  const [modalOpen, setModalOpen] = useState(false); // Modal state
+  const [avatarEmail, setAvatarEmail] = useState("");
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_BASE_URL
 
@@ -38,6 +40,7 @@ const Dashboard = () => {
       if (response.ok) {
         const data = await response.json();
         setStatistics(data); // Update state with API response
+        setAvatarEmail(authHeaders.uid);
       } else {
         setSnackbar({ open: true, message: "Failed to fetch statistics.", severity: "error" });
       }
@@ -50,6 +53,9 @@ const Dashboard = () => {
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
 
   const handleRefer = async () => {
     try {
@@ -181,6 +187,14 @@ const Dashboard = () => {
   return (
     <Container maxWidth="md">
       <Paper elevation={4} sx={{ p: 4, mt: 5, borderRadius: 3, backgroundColor: "#fafafa" }}>
+
+        {/* User Badge */}
+        <Chip
+          avatar={<Avatar><Person /></Avatar>}
+          label={avatarEmail} // Replace with actual user email
+          variant="outlined"
+          sx={{ mb: 2, fontWeight: "bold", p: 1 }}
+        />
         {/* Header with Logout */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Typography variant="h4" fontWeight="bold">
@@ -251,11 +265,21 @@ const Dashboard = () => {
                   <People color="primary" sx={{ fontSize: 40 }} />
                   <Typography variant="h6">{statistics.referral_count}</Typography>
                   <Typography variant="body2">Friends Referred</Typography>
+                  {statistics.referral_count > 0 && (
+                    <Button 
+                      variant="outlined" 
+                      startIcon={<ListIcon />} 
+                      sx={{ mt: 1 }} 
+                      onClick={handleOpenModal}
+                    >
+                      View List
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </Grid>
             <Grid item xs={6}>
-              <Card sx={{ p: 2, textAlign: "center", backgroundColor: "#fff3e0" }}>
+              <Card sx={{ p: 2, textAlign: "center", backgroundColor: "#fff3e0", height: "85%"}}>
                 <CardContent>
                   <MonetizationOn color="secondary" sx={{ fontSize: 40 }} />
                   <Typography variant="h6">${statistics.rewards_point}</Typography>
@@ -265,6 +289,48 @@ const Dashboard = () => {
             </Grid>
           </Grid>
         </Box>
+
+        {/* Modal for referred users */}
+        <Modal open={modalOpen} onClose={handleCloseModal}>
+          <Box 
+            sx={{
+              position: "absolute", top: "50%", left: "50%",
+              transform: "translate(-50%, -50%)", width: 420,
+              bgcolor: "background.paper", boxShadow: 24,
+              borderRadius: 3, overflow: "hidden"
+            }}
+          >
+            {/* Title Bar with Close Button */}
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: "#f5f5f5", px: 2, py: 1 }}>
+              <Typography variant="h6">Referred Users</Typography>
+              <IconButton onClick={handleCloseModal}>
+                <Close />
+              </IconButton>
+            </Box>
+
+            <Card sx={{ borderRadius: 0 }}>
+              <CardContent sx={{ maxHeight: 300, overflowY: "auto" }}>
+                {statistics.referred_user_emails.length > 0 ? (
+                  <List>
+                    {statistics.referred_user_emails.map((email, index) => (
+                      <ListItem key={index}>
+                        <Person color="primary" sx={{ mr: 2 }} />
+                        <ListItemText primary={email} />
+                      </ListItem>
+                    ))}
+                  </List>
+                ) : (
+                  <Typography align="center" color="textSecondary">No users referred yet.</Typography>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Close Button */}
+            <Box sx={{ textAlign: "center", p: 2 }}>
+              <Button variant="contained" onClick={handleCloseModal}>Close</Button>
+            </Box>
+          </Box>
+        </Modal>
 
         {/* Snackbar Notification */}
         <Snackbar 

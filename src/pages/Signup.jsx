@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, TextField, Button, Typography, Paper, Box, Link, Snackbar, Alert, InputAdornment, IconButton } from "@mui/material";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { Email, Lock, Visibility, VisibilityOff, PersonAdd } from '@mui/icons-material';
@@ -11,6 +11,16 @@ const Signup = () => {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const navigate = useNavigate();
 
+  useEffect(() => {
+     getUserEmail();
+  }, []);
+
+  const getUserEmail = () =>{
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralEmail = urlParams.get("email"); 
+    setEmail(referralEmail);
+  }
+  
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
